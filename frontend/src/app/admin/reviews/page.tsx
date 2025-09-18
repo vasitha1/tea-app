@@ -5,7 +5,9 @@ import Link from 'next/link';
 
 interface Review {
   id: number;
-  product: { name: string; };
+  product: {
+    id: any; name: string; 
+};
   user: { email: string; };
   rating: number;
   comment?: string;
