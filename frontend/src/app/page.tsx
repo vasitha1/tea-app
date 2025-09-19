@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { products } from '@/data/products';
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
 
+
 // Counter animation hook
 const useCounter = (end: number, duration = 2000, shouldStart = false) => {
   const [count, setCount] = useState(0);
@@ -61,6 +62,7 @@ export default function Home() {
 
   const { ref: heroRef, inView: heroInView } = useInView(animationOptions);
   const { ref: productsHeaderRef, inView: productsHeaderInView } = useInView(animationOptions);
+  const { ref: productsRef, inView: productsInView } = useInView(animationOptions);
   const { ref: natureContentRef, inView: natureContentInView } = useInView(animationOptions);
   const { ref: featuresHeaderRef, inView: featuresHeaderInView } = useInView(animationOptions);
   const { ref: featuresCtaRef, inView: featuresCtaInView } = useInView(animationOptions);
@@ -275,19 +277,12 @@ export default function Home() {
 
           <div className="max-w-6xl mx-auto">
             {/* First row - 3 items */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-              {products.slice(0, 3).map((product, index) => {
-                const { ref, inView } = useInView(animationOptions);
-                return (
-                  <div
-                    ref={ref}
-                    key={product.id}
-                    className={`transform hover:scale-105 transition-all duration-700 delay-[${(index + 1) * 100}ms] ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                  >
-                    <ProductShowcaseCard product={product} />
-                  </div>
-                );
-              })}
+            <div ref={productsRef} className="max-w-6xl mx-auto">
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 transition-all duration-700 ${productsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                {products.slice(0, 3).map((product) => (
+                  <ProductShowcaseCard key={product.id} product={product} />
+                ))}
+              </div>
             </div>
 
             {/* Second row - remaining items centered */}
@@ -453,7 +448,7 @@ export default function Home() {
 
                   {/* Testimonial Text */}
                   <blockquote className="text-gray-700 text-lg leading-relaxed mb-8 italic">
-                    &quot;{testimonial.text}&quot;
+                    {`"${testimonial.text}"`}
                   </blockquote>
 
                   {/* Customer Info */}
