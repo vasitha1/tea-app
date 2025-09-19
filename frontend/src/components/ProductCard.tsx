@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaHeart as FaHeartOutline } from 'react-icons/fa'; // Outline for not in wishlist
-import { FaHeart as FaHeartSolid } from 'react-icons/fa';   // Solid for in wishlist
 
 
 interface ProductCardProps {

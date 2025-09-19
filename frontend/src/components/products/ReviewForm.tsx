@@ -52,9 +52,13 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
       setRating(0);
       setComment('');
       onReviewSubmitted(); // Notify parent component to refresh reviews
-    } catch (err: any) {
+    } catch (err) {
       console.error('Review submission error:', err);
-      setError(err.message || 'An unexpected error occurred.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }

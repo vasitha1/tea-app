@@ -4,9 +4,25 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
-import { products } from '@/data/products';
+import { products, Product } from '@/data/products'; // Assuming Product type is exported
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
 
+// Define types for features and testimonials for better type safety
+interface Feature {
+  title: string;
+  description: string;
+  image: string;
+  alt: string;
+}
+
+interface Testimonial {
+  id: number;
+  name: string;
+  location: string;
+  rating: number;
+  text: string;
+  image: string;
+}
 
 // Counter animation hook
 const useCounter = (end: number, duration = 2000, shouldStart = false) => {
@@ -23,14 +39,7 @@ const useCounter = (end: number, duration = 2000, shouldStart = false) => {
       const progress = Math.min((timestamp - startTime) / duration, 1);
       
       if (end === 4.9) {
-        // Special handling for rating (4.9)
         setCount(Math.round((progress * end) * 10) / 10);
-      } else if (end === 100) {
-        // For percentages
-        setCount(Math.round(progress * end));
-      } else if (end >= 10000) {
-        // For large numbers like 10K+
-        setCount(Math.round(progress * end));
       } else {
         setCount(Math.round(progress * end));
       }
@@ -52,6 +61,97 @@ const useCounter = (end: number, duration = 2000, shouldStart = false) => {
   return count;
 };
 
+// Helper component for animated product cards
+const AnimatedProductCard = ({ product, index, animationOptions }: { product: Product; index: number; animationOptions: any; }) => {
+  const { ref, inView } = useInView(animationOptions);
+  return (
+    <div
+      ref={ref}
+      className={`w-full md:w-auto md:max-w-sm transform hover:scale-105 transition-all duration-700 delay-[${(index + 1) * 100}ms] ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+    >
+      <ProductShowcaseCard product={product} />
+    </div>
+  );
+};
+
+// Helper component for animated features
+const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Feature; index: number; animationOptions: any; }) => {
+  const { ref, inView } = useInView(animationOptions);
+  return (
+    <div
+      ref={ref}
+      className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 transition-all duration-700 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+    >
+      {/* Content */}
+      <div className="flex-1 text-center lg:text-left">
+        <div className="bg-white/60 backdrop-blur-lg rounded-3xl p-10 shadow-lg border border-white/30 hover:bg-white/80 transition-all duration-300">
+          <h3 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-6 leading-tight">
+            {feature.title}
+          </h3>
+          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+            {feature.description}
+          </p>
+        </div>
+      </div>
+      {/* Image */}
+      <div className="flex-1">
+        <div className="relative w-full h-80 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
+          <Image
+            src={feature.image}
+            alt={feature.alt}
+            fill
+            style={{ objectFit: 'cover' }}
+            className="transition-transform duration-500 hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Helper component for animated testimonials
+const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: Testimonial; animationOptions: any; }) => {
+  const { ref, inView } = useInView(animationOptions);
+
+  const renderStars = (rating: number) => {
+    return [...Array(5)].map((_, i) => (
+      <span key={i} className={`text-xl ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+        ★
+      </span>
+    ));
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 transform hover:-translate-y-2 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+    >
+      <div className="flex items-center mb-6">
+        {renderStars(testimonial.rating)}
+      </div>
+      <blockquote className="text-gray-700 text-lg leading-relaxed mb-8 italic">
+        {`"${testimonial.text}"`}
+      </blockquote>
+      <div className="flex items-center">
+        <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4 bg-green-100">
+          <Image
+            src={testimonial.image}
+            alt={testimonial.name}
+            fill
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
+        <div>
+          <div className="font-semibold text-gray-800 text-lg">{testimonial.name}</div>
+          <div className="text-gray-500 text-sm">{testimonial.location}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function Home() {
   const [titleAnimated, setTitleAnimated] = useState(false);
 
@@ -69,19 +169,17 @@ export default function Home() {
   const { ref: testimonialsHeaderRef, inView: testimonialsHeaderInView } = useInView(animationOptions);
   const { ref: trustIndicatorsRef, inView: trustIndicatorsInView } = useInView(animationOptions);
 
-  // Trigger title animation when hero comes into view
   useEffect(() => {
     if (heroInView && !titleAnimated) {
       setTitleAnimated(true);
     }
   }, [heroInView, titleAnimated]);
 
-  // Counter animations for trust indicators
   const customersCount = useCounter(10000, 2000, heroInView);
   const rating = useCounter(4.9, 2000, heroInView);
   const percentage = useCounter(100, 2000, heroInView);
 
-  const features = [
+  const features: Feature[] = [
     {
       title: "100% Natural",
       description: "Pure, organic botanicals sourced directly from Cameroon's fertile lands",
@@ -108,7 +206,7 @@ export default function Home() {
     }
   ];
 
-  const testimonials = [
+  const testimonials: Testimonial[] = [
     {
       id: 1,
       name: "Sarah Johnson",
@@ -159,14 +257,6 @@ export default function Home() {
     }
   ];
 
-  const renderStars = (rating: number) => {
-    return [...Array(5)].map((_, i) => (
-      <span key={i} className={`text-xl ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>
-        ★
-      </span>
-    ));
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Enhanced Hero Section */}
@@ -174,26 +264,21 @@ export default function Home() {
         className="relative w-full h-[500px] bg-cover bg-center flex items-center mt-35 md:mt-0"
         style={{ backgroundImage: 'url(/hero_background.jpg)' }}
       >
-        {/* Background overlay for better text readability */}
         <div className="absolute inset-0 bg-white/85"></div>
-
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div
             ref={heroRef}
             className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full transition-all duration-1000 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
-            {/* Left Content - Text and CTAs */}
             <div className="text-black space-y-6 lg:pr-6">
               <div className="space-y-4">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg">
                   Discover the Power of
                   <span className="text-green-400 block">African Botanical Wisdom</span>
                 </h1>
-                
                 <p className="text-lg sm:text-xl leading-relaxed drop-shadow-md text-gray-700">
-                  Authentic herbal teas crafted from the finest organic ingredients sourced directly from Cameroon's fertile highlands
+                  Authentic herbal teas crafted from the finest organic ingredients sourced directly from Cameroon&apos;s fertile highlands
                 </p>
-                
                 <div className="flex flex-wrap gap-3 pt-2">
                   <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold">
                     ✓ 100% Organic
@@ -206,8 +291,6 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-
-              {/* Call to Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Link
                   href="/about"
@@ -216,8 +299,6 @@ export default function Home() {
                   Learn Our Story
                 </Link>
               </div>
-
-              {/* Trust Indicators with Counter Animation */}
               <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-white/20">
                 <div className="text-center">
                   <div className="text-xl font-bold text-green-400">
@@ -237,8 +318,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            {/* Right Content - Hero Image (Wider but Less Tall) */}
             <div className="flex justify-center lg:justify-end">
               <div className="relative w-full max-w-2xl h-[300px] lg:h-[350px] rounded-2xl overflow-hidden shadow-2xl">
                 <Image
@@ -253,30 +332,11 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Products Section - Enhanced with scroll animations */}
+
+      {/* Products Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to bottom, #ffffff, #f0f9ff, #e0f7fa)',
-          }}
-        ></div>
-
         <div className="relative z-10 flex flex-col items-center justify-center">
-          <div
-            ref={productsHeaderRef}
-            className={`text-center mb-16 transition-all duration-700 ${productsHeaderInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-              Handcrafted Organic Herbal Teas
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Each blend is carefully sourced and crafted to bring you the purest essence of African botanical wisdom
-            </p>
-          </div>
-
           <div className="max-w-6xl mx-auto">
-            {/* First row - 3 items */}
             <div ref={productsRef} className="max-w-6xl mx-auto">
               <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 transition-all duration-700 ${productsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 {products.slice(0, 3).map((product) => (
@@ -284,29 +344,23 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            
+            <div className="flex justify-center gap-8 flex-wrap">
+              {products.slice(3).map((product, index) => (
+                <AnimatedProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                  animationOptions={animationOptions}
+                />
+              ))}
+            </div>
 
-            {/* Second row - remaining items centered */}
-            {products.length > 3 && (
-              <div className="flex justify-center gap-8 flex-wrap">
-                {products.slice(3).map((product, index) => {
-                  const { ref, inView } = useInView(animationOptions);
-                  return (
-                    <div
-                      ref={ref}
-                      key={product.id}
-                      className={`w-full md:w-auto md:max-w-sm transform hover:scale-105 transition-all duration-700 delay-[${(index + 1) * 100}ms] ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                    >
-                      <ProductShowcaseCard product={product} />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* Nature Divider Section - Enhanced with animations */}
+      {/* Nature Divider Section */}
       <section
         className="relative w-full h-[400px] bg-cover bg-center flex items-center justify-center"
         style={{ backgroundImage: 'url(/nature_bg.jpg)' }}
@@ -317,23 +371,20 @@ export default function Home() {
           className={`relative z-10 text-center text-white px-6 max-w-3xl mx-auto transition-all duration-700 ${natureContentInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
         >
           <h3 className="text-3xl md:text-4xl font-bold mb-6 drop-shadow-lg">
-            From Cameroon's Heart to Your Cup
+            From Cameroon&apos;s Heart to Your Cup
           </h3>
           <p className="text-lg md:text-xl leading-relaxed drop-shadow-md">
-            Every leaf tells a story of ancient wisdom, sustainable harvesting, and the healing power of nature's finest botanicals.
+            Every leaf tells a story of ancient wisdom, sustainable harvesting, and the healing power of nature&apos;s finest botanicals.
           </p>
         </div>
       </section>
 
-      {/* Features Section - Enhanced with scroll animations */}
+      {/* Features Section */}
       <section className="relative overflow-hidden">
         <div
           className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, #f0fff4 0%, #e6f7f1 50%, #dcf4f0 100%)'
-          }}
+          style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #e6f7f1 50%, #dcf4f0 100%)' }}
         ></div>
-
         <div className="relative z-10 container mx-auto py-24 px-4">
           <div
             ref={featuresHeaderRef}
@@ -343,50 +394,19 @@ export default function Home() {
               Why Choose Earthlixir?
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-              Experience the perfect blend of nature's wisdom and modern wellness, backed by generations of African herbal expertise
+              Experience the perfect blend of nature&apos;s wisdom and modern wellness, backed by generations of African herbal expertise
             </p>
           </div>
-
           <div className="space-y-24">
-            {features.map((feature, index) => {
-              const { ref, inView } = useInView(animationOptions);
-              return (
-                <div
-                  ref={ref}
-                  key={feature.title}
-                  className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 transition-all duration-700 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                >
-                  {/* Content */}
-                  <div className="flex-1 text-center lg:text-left">
-                    <div className="bg-white/60 backdrop-blur-lg rounded-3xl p-10 shadow-lg border border-white/30 hover:bg-white/80 transition-all duration-300">
-                      <h3 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-6 leading-tight">
-                        {feature.title}
-                      </h3>
-                      <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Image */}
-                  <div className="flex-1">
-                    <div className="relative w-full h-80 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
-                      <Image
-                        src={feature.image}
-                        alt={feature.alt}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        className="transition-transform duration-500 hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {features.map((feature, index) => (
+              <AnimatedFeature
+                key={feature.title}
+                feature={feature}
+                index={index}
+                animationOptions={animationOptions}
+              />
+            ))}
           </div>
-
-          {/* Call to Action */}
           <div
             ref={featuresCtaRef}
             className={`text-center mt-24 transition-all duration-700 ${featuresCtaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -409,15 +429,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Customer Testimonials Section - Enhanced with scroll animations */}
+      {/* Customer Testimonials Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8">
         <div
           className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to bottom, #f8fffe, #ffffff, #f0f9ff)',
-          }}
+          style={{ background: 'linear-gradient(to bottom, #f8fffe, #ffffff, #f0f9ff)' }}
         ></div>
-
         <div className="relative z-10 container mx-auto">
           <div
             ref={testimonialsHeaderRef}
@@ -430,52 +447,15 @@ export default function Home() {
               Discover why thousands of people worldwide trust Earthlixir for their daily wellness routine
             </p>
           </div>
-
-          {/* Testimonials Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {testimonials.map((testimonial) => {
-              const { ref, inView } = useInView(animationOptions);
-              return (
-                <div
-                  ref={ref}
-                  key={testimonial.id}
-                  className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 transform hover:-translate-y-2 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                >
-                  {/* Rating */}
-                  <div className="flex items-center mb-6">
-                    {renderStars(testimonial.rating)}
-                  </div>
-
-                  {/* Testimonial Text */}
-                  <blockquote className="text-gray-700 text-lg leading-relaxed mb-8 italic">
-                    {`"${testimonial.text}"`}
-                  </blockquote>
-
-                  {/* Customer Info */}
-                  <div className="flex items-center">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4 bg-green-100">
-                      <Image
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-800 text-lg">
-                        {testimonial.name}
-                      </div>
-                      <div className="text-gray-500 text-sm">
-                        {testimonial.location}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {testimonials.map((testimonial) => (
+              <AnimatedTestimonial
+                key={testimonial.id}
+                testimonial={testimonial}
+                animationOptions={animationOptions}
+              />
+            ))}
           </div>
-
-          {/* Trust Indicators */}
           <div
             ref={trustIndicatorsRef}
             className={`text-center transition-all duration-700 ${trustIndicatorsInView ? 'opacity-100' : 'opacity-0'}`}
@@ -495,7 +475,6 @@ export default function Home() {
                   <div className="text-gray-600">Would Recommend</div>
                 </div>
               </div>
-
               <div className="mt-10">
                 <p className="text-gray-700 text-lg mb-6">
                   Join our community of wellness enthusiasts and experience the difference
