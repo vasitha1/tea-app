@@ -24,6 +24,12 @@ interface Testimonial {
   image: string;
 }
 
+// Define animation options interface
+interface AnimationOptions {
+  triggerOnce: boolean;
+  threshold: number;
+}
+
 // Counter animation hook
 const useCounter = (end: number, duration = 2000, shouldStart = false) => {
   const [count, setCount] = useState(0);
@@ -62,7 +68,7 @@ const useCounter = (end: number, duration = 2000, shouldStart = false) => {
 };
 
 // Helper component for animated product cards
-const AnimatedProductCard = ({ product, index, animationOptions }: { product: Product; index: number; animationOptions: any; }) => {
+const AnimatedProductCard = ({ product, index, animationOptions }: { product: Product; index: number; animationOptions: AnimationOptions; }) => {
   const { ref, inView } = useInView(animationOptions);
   return (
     <div
@@ -75,7 +81,7 @@ const AnimatedProductCard = ({ product, index, animationOptions }: { product: Pr
 };
 
 // Helper component for animated features
-const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Feature; index: number; animationOptions: any; }) => {
+const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Feature; index: number; animationOptions: AnimationOptions; }) => {
   const { ref, inView } = useInView(animationOptions);
   return (
     <div
@@ -111,7 +117,7 @@ const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Featur
 };
 
 // Helper component for animated testimonials
-const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: Testimonial; animationOptions: any; }) => {
+const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: Testimonial; animationOptions: AnimationOptions; }) => {
   const { ref, inView } = useInView(animationOptions);
 
   const renderStars = (rating: number) => {
@@ -155,13 +161,12 @@ const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: T
 export default function Home() {
   const [titleAnimated, setTitleAnimated] = useState(false);
 
-  const animationOptions = {
+  const animationOptions: AnimationOptions = {
     triggerOnce: true,
     threshold: 0.1,
   };
 
   const { ref: heroRef, inView: heroInView } = useInView(animationOptions);
-  const { ref: productsHeaderRef, inView: productsHeaderInView } = useInView(animationOptions);
   const { ref: productsRef, inView: productsInView } = useInView(animationOptions);
   const { ref: natureContentRef, inView: natureContentInView } = useInView(animationOptions);
   const { ref: featuresHeaderRef, inView: featuresHeaderInView } = useInView(animationOptions);
