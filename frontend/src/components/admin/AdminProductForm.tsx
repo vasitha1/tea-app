@@ -1,6 +1,5 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -38,26 +37,7 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return;
-    }
-    if (!user?.is_admin) {
-      router.push('/');
-      alert('Access Denied: You are not authorized to view this page.');
-      return;
-    }
-
-    fetchCategories();
-    if (productId) {
-      fetchProduct(productId);
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, user, router, token, productId]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/categories`, {
         headers: {
@@ -69,13 +49,14 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
       }
       const data: Category[] = await response.json();
       setCategories(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load categories.';
       console.error('Error fetching categories:', err);
-      setError(err.message || 'Failed to load categories.');
+      setError(errorMessage);
     }
-  };
+  }, [token]);
 
-  const fetchProduct = async (id: number) => {
+  const fetchProduct = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
         headers: {
@@ -87,12 +68,31 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
       }
       const data: ProductFormData = await response.json();
       setFormData(data);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching product details.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching product details.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+    if (!user?.is_admin) {
+      router.push('/');
+      alert('Access Denied: You are not authorized to view this page.');
+      return;
+    }
+    fetchCategories();
+    if (productId) {
+      fetchProduct(productId);
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, router, fetchCategories, fetchProduct, productId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -102,33 +102,29 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
 
   const handleImageUpload = async () => {
     if (!imageFile) return;
-
     setUploadingImage(true);
     setError(null);
     const formData = new FormData();
     formData.append('file', imageFile);
-
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/upload-image`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          // 'Content-Type': 'multipart/form-data', // Important: Browser sets this automatically with FormData
         },
         body: formData,
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Image upload failed');
       }
-
       const result = await response.json();
       setFormData((prev) => ({ ...prev, image_url: result.url }));
       alert('Image uploaded successfully!');
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during image upload.';
       console.error('Image upload error:', err);
-      setError(err.message || 'An error occurred during image upload.');
+      setError(errorMessage);
     } finally {
       setUploadingImage(false);
     }
@@ -146,12 +142,10 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
     const url = productId
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`
       : `${process.env.NEXT_PUBLIC_BACKEND_URL}/products`;
     const method = productId ? 'PUT' : 'POST';
-
     try {
       const response = await fetch(url, {
         method,
@@ -161,16 +155,15 @@ const AdminProductForm: React.FC<{ productId?: number }> = ({ productId }) => {
         },
         body: JSON.stringify(formData),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `Failed to ${productId ? 'update' : 'create'} product`);
       }
-
       alert(`Product ${productId ? 'updated' : 'created'} successfully!`);
       router.push('/admin/products');
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }

@@ -1,6 +1,5 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -8,9 +7,12 @@ import Link from 'next/link';
 interface Review {
   id: number;
   product: {
-    id: any; name: string; 
-};
-  user: { email: string; };
+    id: number; 
+    name: string; 
+  };
+  user: { 
+    email: string; 
+  };
   rating: number;
   comment?: string;
   created_at: string;
@@ -23,21 +25,7 @@ const AdminReviewsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return;
-    }
-    if (!user?.is_admin) {
-      router.push('/');
-      alert('Access Denied: You are not authorized to view this page.');
-      return;
-    }
-
-    fetchReviews();
-  }, [isAuthenticated, user, router, token]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -51,18 +39,31 @@ const AdminReviewsPage: React.FC = () => {
       }
       const data: Review[] = await response.json();
       setReviews(data);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching reviews.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching reviews.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+    if (!user?.is_admin) {
+      router.push('/');
+      alert('Access Denied: You are not authorized to view this page.');
+      return;
+    }
+    fetchReviews();
+  }, [isAuthenticated, user, router, fetchReviews]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this review?')) {
       return;
     }
-
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/reviews/${id}`, {
         method: 'DELETE',
@@ -70,15 +71,14 @@ const AdminReviewsPage: React.FC = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-
       if (!response.ok) {
         throw new Error('Failed to delete review');
       }
-
       alert('Review deleted successfully!');
-      fetchReviews(); // Refresh the list
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while deleting the review.');
+      fetchReviews();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while deleting the review.';
+      setError(errorMessage);
     }
   };
 
@@ -112,7 +112,11 @@ const AdminReviewsPage: React.FC = () => {
               <tbody>
                 {reviews.map((review) => (
                   <tr key={review.id}>
-                    <td className="py-2 px-4 border-b text-gray-800"><Link href={`/product/${review.product.id}`} className="text-blue-600 hover:underline">{review.product.name}</Link></td>
+                    <td className="py-2 px-4 border-b text-gray-800">
+                      <Link href={`/product/${review.product.id}`} className="text-blue-600 hover:underline">
+                        {review.product.name}
+                      </Link>
+                    </td>
                     <td className="py-2 px-4 border-b text-gray-800">{review.user?.email || 'N/A'}</td>
                     <td className="py-2 px-4 border-b text-gray-800">{'⭐'.repeat(review.rating)}</td>
                     <td className="py-2 px-4 border-b text-gray-800">{review.comment || 'N/A'}</td>

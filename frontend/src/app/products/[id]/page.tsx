@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { products } from '@/data/products';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const productId = parseInt(params.id);
+  const { id } = use(params);
+  const productId = parseInt(id);
   const product = products.find(p => p.id === productId);
 
   if (!product) {

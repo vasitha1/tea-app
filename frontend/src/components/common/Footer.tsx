@@ -10,14 +10,13 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold text-green-400 mb-4">Earthlixir</h3>
             <p className="text-gray-300 mb-4">
-              Authentic African herbal teas crafted from the finest organic ingredients sourced directly from Cameroon's fertile highlands.
+              Authentic African herbal teas crafted from the finest organic ingredients sourced directly from Cameroon&apos;s fertile highlands.
             </p>
             <div className="flex space-x-2">
               <span className="inline-block px-2 py-1 bg-green-600 rounded text-xs">100% Organic</span>
               <span className="inline-block px-2 py-1 bg-green-600 rounded text-xs">Caffeine-Free</span>
             </div>
           </div>
-
           {/* Quick Links */}
           <div>
             <h4 className="font-semibold text-white mb-4">Quick Links</h4>
@@ -44,7 +43,6 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-
           {/* Customer Support */}
           <div>
             <h4 className="font-semibold text-white mb-4">Support</h4>
@@ -71,7 +69,6 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-
           {/* Contact Info */}
           <div>
             <h4 className="font-semibold text-white mb-4">Get in Touch</h4>
@@ -86,13 +83,12 @@ export default function Footer() {
               </p>
               <p>
                 <span className="font-medium">Address:</span><br />
-                6.261 Rue d'antenne Mbankolo<br />
+                6.261 Rue d&apos;antenne Mbankolo<br />
                 Yaounde, Cameroun
               </p>
             </div>
           </div>
         </div>
-
         {/* Bottom Footer */}
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
