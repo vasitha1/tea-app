@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 const AdminDashboardPage: React.FC = () => {
-  const { user, isAuthenticated, token } = useAuth();
+  const { user, isAuthenticated} = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 

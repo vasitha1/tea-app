@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { products, Product } from '@/data/products';
+import { products } from '@/data/products';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
