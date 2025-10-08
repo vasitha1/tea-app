@@ -7,7 +7,7 @@ export default function AboutPage() {
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-green-600 to-emerald-700 text-white py-24 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{backgroundImage: 'url(/nature_bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
+          <div className="absolute inset-0" style={{backgroundImage: 'url(/hero_background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-4xl mx-auto">

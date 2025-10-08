@@ -31,7 +31,7 @@ const AdminReviewsPage: React.FC = () => {
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const decodeToken = (token: string) => {
