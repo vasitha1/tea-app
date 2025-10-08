@@ -28,13 +28,13 @@ const shipping_module_1 = require("./modules/shipping/shipping.module");
 const email_module_1 = require("./modules/email/email.module");
 const contact_module_1 = require("./modules/contact/contact.module");
 const faqs_module_1 = require("./modules/faqs/faqs.module");
-const rawbody = require("raw-body");
+const raw_body_1 = require("raw-body");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer
             .apply((req, res, next) => {
             if (req.originalUrl === '/payments/webhook' && req.method === 'POST') {
-                rawbody(req, { length: req.headers['content-length'], limit: '1mb' }, (err, buffer) => {
+                (0, raw_body_1.default)(req, { length: req.headers['content-length'], limit: '1mb' }, (err, buffer) => {
                     if (err) {
                         return next(err);
                     }
