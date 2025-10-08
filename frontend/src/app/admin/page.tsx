@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AdminHeader from '@/components/Admin/AdminHeader';
-import Sidebar from '@/components/Admin/Sidebar';
-import DashboardContent from '@/components/Admin/DashboardContent';
+import AdminHeader from '../../components/Admin/AdminHeader';
+import Sidebar from '../../components/Admin/Sidebar';
+import DashboardContent from '../../components/Admin/DashboardContent';
 
 // Helper function to decode JWT token
 const decodeToken = (token: string) => {

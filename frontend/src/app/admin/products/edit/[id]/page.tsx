@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import AdminProductForm from '@/components/admin/AdminProductForm';
+import AdminProductForm from '../../../../../components/admin/AdminProductForm';
 
 const EditProductPage: React.FC = () => {
   const params = useParams();

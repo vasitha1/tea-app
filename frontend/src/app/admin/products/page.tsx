@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
-import AdminHeader from '@/components/Admin/AdminHeader';
-import Sidebar from '@/components/Admin/Sidebar';
+import AdminHeader from '../../../components/Admin/AdminHeader';
+import Sidebar from '../../../components/Admin/Sidebar';
 
 interface Product {
   id: string;

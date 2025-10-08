@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
-import AdminHeader from '@/components/Admin/AdminHeader';
-import Sidebar from '@/components/Admin/Sidebar';
+import AdminHeader from '../../../components/Admin/AdminHeader';
+import Sidebar from '../../../components/Admin/Sidebar';
 
 interface Review {
   id: string;
