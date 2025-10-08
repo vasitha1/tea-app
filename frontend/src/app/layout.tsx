@@ -1,7 +1,8 @@
 import { Inter, JetBrains_Mono, Dancing_Script, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from './providers';
-import ConditionalLayout from '@/components/ConditionalLayout';
+import Header from '@/components/common/Header';
+import Footer from '@/components/common/Footer';
 
 const inter = Inter({
   variable: "--font-inter-sans",
@@ -34,9 +35,15 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} ${openSans.variable}`}>
       <body className="antialiased">
         <Providers>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            
+            <main className="flex-grow">
+              {children}
+            </main>
+            
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>
