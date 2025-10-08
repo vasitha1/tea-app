@@ -7,8 +7,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -19,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="bg-white shadow-md rounded-lg overflow-hidden relative group">
       <Link href={`/products/${product.id}`} className="block">
         <Image
-          src={`${backendUrl}${product.imageUrl || '/placeholder.jpg'}`}
+          src={product.imageUrl?.startsWith('http') ? product.imageUrl : `${product.imageUrl || '/placeholder.jpg'}`}
           alt={product.name}
           width={400}
           height={300}
