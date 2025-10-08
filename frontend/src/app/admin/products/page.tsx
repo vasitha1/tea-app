@@ -178,7 +178,7 @@ const AdminProductsPage: React.FC = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="relative h-16 w-16">
                                 <Image
-                                  src={product.imageUrl?.startsWith('http') ? product.imageUrl : `${product.imageUrl || '/placeholder.jpg'}`}
+                                  src={product.imageUrl?.startsWith('http') ? product.imageUrl : product.imageUrl?.replace('/images/', '/') || '/placeholder.jpg'}
                                   alt={product.name}
                                   fill
                                   style={{ objectFit: 'cover' }}

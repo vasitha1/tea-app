@@ -17,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="bg-white shadow-md rounded-lg overflow-hidden relative group">
       <Link href={`/products/${product.id}`} className="block">
         <Image
-          src={product.imageUrl?.startsWith('http') ? product.imageUrl : `${product.imageUrl || '/placeholder.jpg'}`}
+          src={product.imageUrl?.startsWith('http') ? product.imageUrl : product.imageUrl?.replace('/images/', '/') || '/placeholder.jpg'}
           alt={product.name}
           width={400}
           height={300}

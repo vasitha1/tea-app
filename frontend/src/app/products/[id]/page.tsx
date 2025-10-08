@@ -95,7 +95,7 @@ const ProductDetailPage = () => {
           {/* Product Image */}
           <div className="relative w-full h-80 md:h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-md">
             <Image
-              src={product.imageUrl?.startsWith('http') ? product.imageUrl : `${product.imageUrl || '/placeholder-image.jpg'}`}
+              src={product.imageUrl?.startsWith('http') ? product.imageUrl : product.imageUrl?.replace('/images/', '/') || '/placeholder-image.jpg'}
               alt={product.name}
               fill
               style={{ objectFit: 'cover' }}

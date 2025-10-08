@@ -375,7 +375,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
                   <p className="text-sm text-gray-600 mb-2">Current Image:</p>
                   <div className="relative h-48 w-48">
                     <Image
-                      src={formData.imageUrl?.startsWith('http') ? formData.imageUrl : `${formData.imageUrl}`}
+                      src={formData.imageUrl?.startsWith('http') ? formData.imageUrl : formData.imageUrl?.replace('/images/', '/') || '/placeholder.jpg'}
                       alt="Product preview"
                       fill
                       style={{ objectFit: 'cover' }}

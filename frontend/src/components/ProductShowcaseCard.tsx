@@ -14,7 +14,7 @@ export default function ProductShowcaseCard({ product }: ProductShowcaseCardProp
     <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer h-full flex flex-col">
       <div className="relative w-full h-56">
         <Image
-          src={product.imageUrl?.startsWith('http') ? product.imageUrl : `${product.imageUrl || '/placeholder.jpg'}`}
+          src={product.imageUrl?.startsWith('http') ? product.imageUrl : product.imageUrl?.replace('/images/', '/') || '/placeholder.jpg'}
           alt={product.name}
           fill // Use fill to make the image cover the parent div
           style={{ objectFit: 'cover' }} // Ensure the image covers the area without distortion
