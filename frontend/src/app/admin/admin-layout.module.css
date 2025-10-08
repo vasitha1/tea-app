@@ -1,0 +1,16 @@
+/* Hide header and footer when inside admin pages */
+:global(body:has(.adminPagesContainer)) :global(header),
+:global(body:has(.adminPagesContainer)) :global(footer) {
+  display: none !important;
+}
+
+/* Make main take full width */
+:global(body:has(.adminPagesContainer)) :global(main) {
+  display: contents;
+}
+
+.adminPagesContainer {
+  min-height: 100vh;
+  width: 100%;
+}
+
