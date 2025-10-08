@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
 
 // Define Product interface to match backend
@@ -212,15 +211,21 @@ export default function Home() {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
         console.log('Fetching products from:', backendUrl);
         
-        const response = await axios.get<Product[]>(`${backendUrl}/api/products`, {
-          timeout: 10000, // 10 second timeout
+        const response = await fetch(`${backendUrl}/api/products`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          cache: 'no-store', // Important for iOS
         });
-        
-        console.log('Products fetched successfully:', response.data.length);
-        setProducts(response.data);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Products fetched successfully:', data.length);
+        setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
         // Set empty array as fallback
@@ -240,15 +245,21 @@ export default function Home() {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
         console.log('Fetching reviews from:', backendUrl);
         
-        const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`, {
-          timeout: 10000, // 10 second timeout
+        const response = await fetch(`${backendUrl}/api/reviews`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          cache: 'no-store', // Important for iOS
         });
-        
-        console.log('Reviews fetched successfully:', response.data.length);
-        setReviews(response.data.slice(0, 6)); // Limit to 6 reviews
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Reviews fetched successfully:', data.length);
+        setReviews(data.slice(0, 6)); // Limit to 6 reviews
       } catch (error) {
         console.error('Error fetching reviews:', error);
         // Set empty array as fallback

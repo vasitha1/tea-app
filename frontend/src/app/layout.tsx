@@ -7,8 +7,14 @@ import Footer from '@/components/common/Footer';
 export const metadata = {
   title: 'Earthlixir - Premium Cameroonian Tea',
   description: 'Discover authentic Cameroonian tea blends crafted with traditional wisdom and modern wellness benefits.',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#16a34a',
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#16a34a', // Green color for iOS
 };
 
 const inter = Inter({
