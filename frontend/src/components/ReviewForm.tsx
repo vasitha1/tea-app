@@ -60,27 +60,14 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
       setGuestName('');
       setGuestEmail('');
       onReviewSubmitted();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error submitting review:', err);
-      setError(err.response?.data?.message || 'Failed to submit review.');
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to submit review.');
     } finally {
       setLoading(false);
     }
   };
-
-  const renderStarInput = (starValue: number) => (
-    <label key={starValue} className="cursor-pointer text-gray-300 hover:text-yellow-400 transition-colors duration-200">
-      <input
-        type="radio"
-        name="rating"
-        value={starValue}
-        checked={rating === starValue}
-        onChange={() => setRating(starValue)}
-        className="sr-only"
-      />
-      <span className="text-3xl">★</span>
-    </label>
-  );
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">

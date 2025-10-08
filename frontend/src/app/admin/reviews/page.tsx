@@ -31,7 +31,7 @@ const AdminReviewsPage: React.FC = () => {
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const decodeToken = (token: string) => {
@@ -74,8 +74,9 @@ const AdminReviewsPage: React.FC = () => {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
       const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
       setReviews(response.data);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch reviews';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to fetch reviews';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -96,8 +97,9 @@ const AdminReviewsPage: React.FC = () => {
       });
       alert('Review deleted successfully!');
       fetchReviews();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to delete review';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to delete review';
       alert(errorMessage);
     }
   };

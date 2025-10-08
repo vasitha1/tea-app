@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation'; // Import useParams
+import { useParams } from 'next/navigation'; // Import useParams
 import Image from 'next/image';
 import axios from 'axios';
 import { Product } from '@/app/page';
@@ -23,8 +23,7 @@ interface Review {
   createdAt: string;
 }
 
-const ProductDetailPage = ({ params }: { params: { id: string } }) => {
-  const router = useRouter();
+const ProductDetailPage = () => {
   const routerParams = useParams(); // Use useParams hook
   const id = routerParams.id as string; // Access id from routerParams and cast to string
   const [product, setProduct] = useState<Product | null>(null);
@@ -65,6 +64,7 @@ const ProductDetailPage = ({ params }: { params: { id: string } }) => {
     if (id) {
       fetchProductAndReviews();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleReviewSubmitted = () => {

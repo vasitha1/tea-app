@@ -46,7 +46,7 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="text-xl md:text-2xl text-green-50 max-w-3xl mx-auto">
-            We're here to answer your questions and help you on your wellness journey
+            We&apos;re here to answer your questions and help you on your wellness journey
           </p>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
               <h2 className="text-3xl font-bold text-gray-800 mb-2">Send Us a Message</h2>
-              <p className="text-gray-600 mb-8">Fill out the form below and we'll get back to you as soon as possible</p>
+              <p className="text-gray-600 mb-8">Fill out the form below and we&apos;ll get back to you as soon as possible</p>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -176,7 +176,7 @@ export default function ContactPage() {
                       <a href="mailto:contact@earthlixir.net" className="text-green-600 hover:text-green-700 transition-colors">
                         contact@earthlixir.net
                       </a>
-                      <p className="text-gray-600 text-sm mt-1">We'll respond within 24 hours</p>
+                      <p className="text-gray-600 text-sm mt-1">We&apos;ll respond within 24 hours</p>
                     </div>
                   </div>
 
@@ -200,7 +200,7 @@ export default function ContactPage() {
                     <div>
                       <h4 className="font-semibold text-gray-800 text-lg mb-1">Visit Us</h4>
                       <p className="text-gray-700">
-                        6.261 Rue d'antenne Mbankolo<br />
+                        6.261 Rue d&apos;antenne Mbankolo<br />
                         Yaounde, Cameroun
                       </p>
                     </div>

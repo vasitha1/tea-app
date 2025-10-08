@@ -69,8 +69,9 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
         stock: product.stock || 0,
         imageUrl: product.imageUrl || '',
       });
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch product';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to fetch product';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -107,7 +108,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
       const token = localStorage.getItem('accessToken');
 
       // Prepare the data
-      const submitData: any = {
+      const submitData: Record<string, unknown> = {
         name: formData.name,
         flavor: formData.flavor || undefined,
         shortDescription: formData.shortDescription || undefined,
@@ -162,8 +163,9 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
       }
 
       router.push('/admin/products');
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to save product';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to save product';
       setError(errorMessage);
     } finally {
       setSubmitting(false);

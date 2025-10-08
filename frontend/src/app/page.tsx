@@ -191,7 +191,7 @@ export default function Home() {
   };
 
   const { ref: heroRef, inView: heroInView } = useInView(animationOptions);
-  const { ref: productsRef, inView: productsInView } = useInView(animationOptions);
+  const { ref: productsRef } = useInView(animationOptions);
   const { ref: natureContentRef, inView: natureContentInView } = useInView(animationOptions);
   const { ref: featuresHeaderRef, inView: featuresHeaderInView } = useInView(animationOptions);
   const { ref: featuresCtaRef, inView: featuresCtaInView } = useInView(animationOptions);

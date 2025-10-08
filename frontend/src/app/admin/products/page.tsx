@@ -26,7 +26,7 @@ const AdminProductsPage: React.FC = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const decodeToken = (token: string) => {
@@ -69,8 +69,9 @@ const AdminProductsPage: React.FC = () => {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
       const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
       setProducts(response.data);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch products';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to fetch products';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -91,8 +92,9 @@ const AdminProductsPage: React.FC = () => {
       });
       alert('Product deleted successfully!');
       fetchProducts();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to delete product';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Failed to delete product';
       alert(errorMessage);
     }
   };

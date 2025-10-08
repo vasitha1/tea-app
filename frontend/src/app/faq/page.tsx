@@ -135,7 +135,7 @@ const FAQPage: React.FC = () => {
               <div className="mb-8 pb-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Got Questions?</h2>
                 <p className="text-gray-600">
-                  Click on any question below to view the answer. Can't find what you're looking for?{' '}
+                  Click on any question below to view the answer. Can&apos;t find what you&apos;re looking for?{' '}
                   <a href="/contact" className="text-green-600 hover:text-green-700 font-semibold underline">
                     Contact us
                   </a>

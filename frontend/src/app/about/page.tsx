@@ -133,7 +133,7 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-4xl font-bold mb-6">Get in Touch</h2>
                 <p className="text-xl text-green-50 mb-8">
-                  Have questions about our teas, your order, or just want to say hello? We'd love to hear from you!
+                  Have questions about our teas, your order, or just want to say hello? We&apos;d love to hear from you!
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
@@ -159,7 +159,7 @@ export default function AboutPage() {
                     <div>
                       <div className="font-semibold text-lg">Address</div>
                       <p className="text-green-100">
-                        6.261 Rue d'antenne Mbankolo<br />
+                        6.261 Rue d&apos;antenne Mbankolo<br />
                         Yaounde, Cameroun
                       </p>
                     </div>
