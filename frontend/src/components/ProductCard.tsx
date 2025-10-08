@@ -1,19 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { Product } from '@/app/page';
 
 interface ProductCardProps {
-  product: {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image_url: string;
-  };
+  product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -21,12 +15,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     alert(`${product.name} added to cart!`);
   };
 
-
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden relative group">
-      <Link href={`/product/${product.id}`} className="block">
+      <Link href={`/products/${product.id}`} className="block">
         <Image
-          src={product.image_url || '/placeholder.jpg'}
+          src={`${backendUrl}${product.imageUrl || '/placeholder.jpg'}`}
           alt={product.name}
           width={400}
           height={300}
@@ -34,7 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
         <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-          <p className="text-gray-600 text-sm mt-1 line-clamp-2">{product.description}</p>
+          {product.shortDescription && (
+            <p className="text-gray-600 text-sm mt-1 line-clamp-2">{product.shortDescription}</p>
+          )}
         </div>
       </Link>
       <div className="p-4 pt-0">
@@ -44,6 +39,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         >
           Add to Cart
         </button>
+        <Link
+          href={`/products/${product.id}`}
+          className="block w-full text-center mt-2 border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-100 transition duration-300"
+        >
+          View Details
+        </Link>
       </div>
     </div>
   );

@@ -2,46 +2,88 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
+import AdminHeader from '@/components/Admin/AdminHeader';
+import Sidebar from '@/components/Admin/Sidebar';
+import DashboardContent from '@/components/Admin/DashboardContent';
+
+// Helper function to decode JWT token
+const decodeToken = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
+  }
+};
 
 const AdminDashboardPage: React.FC = () => {
-  const { user, isAuthenticated} = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-    } else if (!user?.is_admin) {
-      router.push('/'); // Redirect non-admin users to homepage
-      alert('Access Denied: You are not authorized to view this page.');
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, user, router]);
+    const checkAdminStatus = () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          router.push('/admin/login');
+          return;
+        }
+        
+        const decodedToken = decodeToken(token);
+        
+        if (decodedToken && decodedToken.isAdmin) {
+          // Check if token is expired
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp && decodedToken.exp < currentTime) {
+            localStorage.removeItem('accessToken');
+            router.push('/admin/login');
+            return;
+          }
+          setIsAdmin(true);
+        } else {
+          localStorage.removeItem('accessToken');
+          router.push('/admin/login');
+        }
+      } catch (error) {
+        console.error('Admin check failed:', error);
+        localStorage.removeItem('accessToken');
+        router.push('/admin/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAdminStatus();
+  }, [router]);
 
-  if (loading || !user?.is_admin) {
-    return <div className="container mx-auto px-4 py-8 text-center">Loading Admin Dashboard...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-xl text-gray-700">Loading admin panel...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null; // Redirect handled by useEffect
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Admin Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link href="/admin/products" className="block bg-white shadow-md rounded-lg p-6 text-center hover:bg-gray-50 transition duration-300">
-          <h2 className="text-2xl font-semibold text-gray-800">Manage Products</h2>
-          <p className="text-gray-600 mt-2">Add, edit, and delete products.</p>
-        </Link>
-        <Link href="/admin/orders" className="block bg-white shadow-md rounded-lg p-6 text-center hover:bg-gray-50 transition duration-300">
-          <h2 className="text-2xl font-semibold text-gray-800">Manage Orders</h2>
-          <p className="text-gray-600 mt-2">View and update customer orders.</p>
-        </Link>
-        <Link href="/admin/reviews" className="block bg-white shadow-md rounded-lg p-6 text-center hover:bg-gray-50 transition duration-300">
-          <h2 className="text-2xl font-semibold text-gray-800">Manage Reviews</h2>
-          <p className="text-gray-600 mt-2">Moderate customer feedback and ratings.</p>
-        </Link>
-        {/* Add more admin links as needed */}
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <AdminHeader />
+        <main className="flex-1 p-8">
+          <DashboardContent />
+        </main>
       </div>
     </div>
   );

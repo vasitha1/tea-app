@@ -1,12 +1,22 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import AdminProductForm from '@/components/admin/AdminProductForm';
 
-interface EditProductPageProps {
-  params: { id: string };
-}
+const EditProductPage: React.FC = () => {
+  const params = useParams();
+  const [productId, setProductId] = useState<string | null>(null);
 
-const EditProductPage: React.FC<EditProductPageProps> = ({ params }) => {
-  const productId = parseInt(params.id);
+  useEffect(() => {
+    if (params.id) {
+      setProductId(params.id as string);
+    }
+  }, [params]);
+
+  if (!productId) {
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center">Loading...</div>;
+  }
 
   return <AdminProductForm productId={productId} />;
 };

@@ -4,10 +4,25 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
-import { products, Product } from '@/data/products'; // Assuming Product type is exported
+import axios from 'axios';
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
 
-// Define types for features and testimonials for better type safety
+// Define Product interface to match backend
+export interface Product {
+  id: string;
+  name: string;
+  flavor?: string;
+  shortDescription?: string;
+  longDescription?: string;
+  healthBenefits?: string[];
+  brewingInstructions?: string[];
+  healthDisclaimer?: string;
+  price?: number;
+  stock?: number;
+  imageUrl?: string;
+}
+
+// Define types for features and testimonials
 interface Feature {
   title: string;
   description: string;
@@ -15,13 +30,18 @@ interface Feature {
   alt: string;
 }
 
-interface Testimonial {
-  id: number;
-  name: string;
-  location: string;
+interface Review {
+  id: string;
   rating: number;
-  text: string;
-  image: string;
+  comment: string;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  guestName?: string;
+  country: string;
+  createdAt: string;
 }
 
 // Define animation options interface
@@ -86,22 +106,22 @@ const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Featur
   return (
     <div
       ref={ref}
-      className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 transition-all duration-700 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      className={`flex flex-col lg:flex-row items-center gap-6 sm:gap-8 md:gap-12 lg:gap-20 transition-all duration-700 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
     >
       {/* Content */}
-      <div className="flex-1 text-center lg:text-left">
-        <div className="bg-white/60 backdrop-blur-lg rounded-3xl p-10 shadow-lg border border-white/30 hover:bg-white/80 transition-all duration-300">
-          <h3 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-6 leading-tight">
+      <div className="flex-1 text-center lg:text-left w-full">
+        <div className="bg-white/60 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg border border-white/30 hover:bg-white/80 transition-all duration-300">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-emerald-800 mb-4 sm:mb-6 leading-tight">
             {feature.title}
           </h3>
-          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed">
             {feature.description}
           </p>
         </div>
       </div>
       {/* Image */}
-      <div className="flex-1">
-        <div className="relative w-full h-80 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
+      <div className="flex-1 w-full">
+        <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
           <Image
             src={feature.image}
             alt={feature.alt}
@@ -117,7 +137,7 @@ const AnimatedFeature = ({ feature, index, animationOptions }: { feature: Featur
 };
 
 // Helper component for animated testimonials
-const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: Testimonial; animationOptions: AnimationOptions; }) => {
+const AnimatedTestimonial = ({ review, animationOptions }: { review: Review; animationOptions: AnimationOptions; }) => {
   const { ref, inView } = useInView(animationOptions);
 
   const renderStars = (rating: number) => {
@@ -134,32 +154,36 @@ const AnimatedTestimonial = ({ testimonial, animationOptions }: { testimonial: T
       className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 transform hover:-translate-y-2 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
     >
       <div className="flex items-center mb-6">
-        {renderStars(testimonial.rating)}
+        {renderStars(review.rating)}
       </div>
       <blockquote className="text-gray-700 text-lg leading-relaxed mb-8 italic">
-        {`"${testimonial.text}"`}
+        {`"${review.comment}"`}
       </blockquote>
       <div className="flex items-center">
-        <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4 bg-green-100">
-          <Image
-            src={testimonial.image}
-            alt={testimonial.name}
-            fill
-            style={{ objectFit: 'cover' }}
-          />
+        <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4 bg-green-100 flex items-center justify-center">
+          <span className="text-green-600 text-xl font-bold">
+            {review.user 
+              ? review.user.firstName.charAt(0).toUpperCase() 
+              : review.guestName?.charAt(0).toUpperCase() || '?'}
+          </span>
         </div>
         <div>
-          <div className="font-semibold text-gray-800 text-lg">{testimonial.name}</div>
-          <div className="text-gray-500 text-sm">{testimonial.location}</div>
+          <div className="font-semibold text-gray-800 text-lg">
+            {review.user ? `${review.user.firstName} ${review.user.lastName}` : review.guestName}
+          </div>
+          <div className="text-gray-500 text-sm">{review.country}</div>
         </div>
       </div>
     </div>
   );
 };
 
-
 export default function Home() {
   const [titleAnimated, setTitleAnimated] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   const animationOptions: AnimationOptions = {
     triggerOnce: true,
@@ -179,6 +203,38 @@ export default function Home() {
       setTitleAnimated(true);
     }
   }, [heroInView, titleAnimated]);
+
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+        const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Fetch reviews from backend
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+        const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
+        setReviews(response.data.slice(0, 6)); // Limit to 6 reviews
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   const customersCount = useCounter(10000, 2000, heroInView);
   const rating = useCounter(4.9, 2000, heroInView);
@@ -211,120 +267,75 @@ export default function Home() {
     }
   ];
 
-  const testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      location: "New York, USA",
-      rating: 5,
-      text: "Earthlixir teas have completely transformed my evening routine. The Moringa blend helps me unwind after long days, and I love knowing I'm supporting sustainable practices.",
-      image: "/hero.jpg"
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      location: "Toronto, Canada",
-      rating: 5,
-      text: "As a healthcare professional, I appreciate the authentic traditional formulations. The quality is exceptional and my patients have noticed real improvements in their wellness.",
-      image: "/hero.jpg"
-    },
-    {
-      id: 3,
-      name: "Amara Okafor",
-      location: "London, UK",
-      rating: 5,
-      text: "Finally, authentic African herbal teas that remind me of home! The flavors are rich and the health benefits are noticeable. Earthlixir has become my daily ritual.",
-      image: "/hero.jpg"
-    },
-    {
-      id: 4,
-      name: "James Rodriguez",
-      location: "Los Angeles, USA",
-      rating: 5,
-      text: "I've tried many herbal tea brands, but nothing compares to Earthlixir. The traditional wisdom combined with premium quality makes every cup a healing experience.",
-      image: "/hero.jpg"
-    },
-    {
-      id: 5,
-      name: "Elena Petrov",
-      location: "Berlin, Germany",
-      rating: 5,
-      text: "The customer service is amazing and the teas are life-changing. I've been recommending Earthlixir to everyone I know. It's more than tea - it's wellness in a cup.",
-      image: "/hero.jpg"
-    },
-    {
-      id: 6,
-      name: "Ahmad Hassan",
-      location: "Dubai, UAE",
-      rating: 5,
-      text: "Earthlixir represents the best of African botanical heritage. The teas are potent, pure, and have helped improve my digestion and overall energy levels significantly.",
-      image: "/hero.jpg"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Enhanced Hero Section */}
       <section
-        className="relative w-full h-[500px] bg-cover bg-center flex items-center mt-35 md:mt-0"
+        className="relative w-full min-h-[600px] md:h-[500px] bg-cover bg-center flex items-center pt-20 md:pt-0"
         style={{ backgroundImage: 'url(/hero_background.jpg)' }}
       >
         <div className="absolute inset-0 bg-white/85"></div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 md:py-0">
           <div
             ref={heroRef}
             className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full transition-all duration-1000 ${heroInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
-            <div className="text-black space-y-6 lg:pr-6">
-              <div className="space-y-4">
+            <div className="text-black space-y-4 md:space-y-6 lg:pr-6">
+              <div className="space-y-3 md:space-y-4">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg">
                   Discover the Power of
-                  <span className="text-green-400 block">African Botanical Wisdom</span>
+                  <span className="text-green-600 block">African Botanical Wisdom</span>
                 </h1>
                 <p className="text-lg sm:text-xl leading-relaxed drop-shadow-md text-gray-700">
                   Authentic herbal teas crafted from the finest organic ingredients sourced directly from Cameroon&apos;s fertile highlands
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold">
+                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold text-white">
                     ✓ 100% Organic
                   </span>
-                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold">
+                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold text-white">
                     ✓ Caffeine-Free
                   </span>
-                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold">
+                  <span className="inline-block px-3 py-1.5 bg-green-600/80 backdrop-blur-sm rounded-full text-sm font-semibold text-white">
                     ✓ Traditional Recipe
                   </span>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Link
+                  href="/catalog"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all duration-300"
+                >
+                  Shop Now
+                </Link>
+                <Link
                   href="/about"
-                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-white/80 text-white hover:bg-white hover:text-gray-900 font-bold rounded-xl transition-all duration-300 backdrop-blur-sm"
+                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold rounded-xl transition-all duration-300"
                 >
                   Learn Our Story
                 </Link>
               </div>
-              <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-white/20">
+              <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-gray-300">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-green-400">
+                  <div className="text-xl font-bold text-green-600">
                     {customersCount >= 10000 ? '10K+' : `${Math.round(customersCount / 1000)}K+`}
                   </div>
                   <div className="text-xs text-gray-700">Happy Customers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-green-400">
+                  <div className="text-xl font-bold text-green-600">
                     ★ {rating.toFixed(1)}
                   </div>
                   <div className="text-xs text-gray-700">Average Rating</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-green-400">{percentage}%</div>
+                  <div className="text-xl font-bold text-green-600">{percentage}%</div>
                   <div className="text-xs text-gray-700">Natural & Organic</div>
                 </div>
               </div>
             </div>
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-2xl h-[300px] lg:h-[350px] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="flex justify-center lg:justify-end mt-6 lg:mt-0">
+              <div className="relative w-full max-w-2xl h-[250px] sm:h-[300px] lg:h-[350px] rounded-2xl overflow-hidden shadow-2xl">
                 <Image
                   src="/hero.jpg"
                   alt="Premium organic herbal tea collection from Cameroon"
@@ -339,28 +350,42 @@ export default function Home() {
       </section>
 
       {/* Products Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 flex flex-col items-center justify-center">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto w-full">
             <div ref={productsRef} className="max-w-6xl mx-auto">
-              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 transition-all duration-700 ${productsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                {products.slice(0, 3).map((product) => (
-                  <ProductShowcaseCard key={product.id} product={product} />
-                ))}
-              </div>
+              {loadingProducts ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600 mb-4"></div>
+                  <p className="text-gray-700 text-lg">Loading our tea collection...</p>
+                </div>
+              ) : products.length > 0 ? (
+                <>
+                  <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8`}>
+                    {products.slice(0, 3).map((product, index) => (
+                      <AnimatedProductCard
+                        key={product.id}
+                        product={product}
+                        index={index}
+                        animationOptions={animationOptions}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-center gap-8 flex-wrap">
+                    {products.slice(3).map((product, index) => (
+                      <AnimatedProductCard
+                        key={product.id}
+                        product={product}
+                        index={index + 3}
+                        animationOptions={animationOptions}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-center text-gray-700 text-lg">No products available.</p>
+              )}
             </div>
-            
-            <div className="flex justify-center gap-8 flex-wrap">
-              {products.slice(3).map((product, index) => (
-                <AnimatedProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  animationOptions={animationOptions}
-                />
-              ))}
-            </div>
-
           </div>
         </div>
       </section>
@@ -368,9 +393,9 @@ export default function Home() {
       {/* Nature Divider Section */}
       <section
         className="relative w-full h-[400px] bg-cover bg-center flex items-center justify-center"
-        style={{ backgroundImage: 'url(/nature_bg.jpg)' }}
+        style={{ backgroundImage: 'url(/nature_bg.jpg)', backgroundPosition: 'bottom' }}
       >
-        <div className="absolute inset-0 bg-black opacity-40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-black/40"></div>
         <div
           ref={natureContentRef}
           className={`relative z-10 text-center text-white px-6 max-w-3xl mx-auto transition-all duration-700 ${natureContentInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -388,21 +413,21 @@ export default function Home() {
       <section className="relative overflow-hidden">
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(135deg, #f0fff4 0%, #e6f7f1 50%, #dcf4f0 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, #d1fae5 0%, #a7f3d0 30%, #ffffff 100%)' }}
         ></div>
-        <div className="relative z-10 container mx-auto py-24 px-4">
+        <div className="relative z-10 container mx-auto py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8">
           <div
             ref={featuresHeaderRef}
-            className={`text-center mb-20 transition-all duration-700 ${featuresHeaderInView ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}
+            className={`text-center mb-12 sm:mb-16 md:mb-20 transition-all duration-700 ${featuresHeaderInView ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 drop-shadow-sm">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 drop-shadow-sm px-4">
               Why Choose Earthlixir?
             </h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed px-4">
               Experience the perfect blend of nature&apos;s wisdom and modern wellness, backed by generations of African herbal expertise
             </p>
           </div>
-          <div className="space-y-24">
+          <div className="space-y-12 sm:space-y-16 md:space-y-24">
             {features.map((feature, index) => (
               <AnimatedFeature
                 key={feature.title}
@@ -414,18 +439,18 @@ export default function Home() {
           </div>
           <div
             ref={featuresCtaRef}
-            className={`text-center mt-24 transition-all duration-700 ${featuresCtaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`text-center mt-12 sm:mt-16 md:mt-24 transition-all duration-700 ${featuresCtaInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
-            <div className="bg-white/60 backdrop-blur-lg rounded-3xl p-10 max-w-3xl mx-auto shadow-2xl border border-white/30">
-              <h3 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-6">
+            <div className="bg-white/60 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 max-w-3xl mx-auto shadow-2xl border border-white/30">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-emerald-800 mb-4 sm:mb-6">
                 Ready to Transform Your Wellness Journey?
               </h3>
-              <p className="text-xl text-gray-700 mb-10 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 md:mb-10 leading-relaxed">
                 Join thousands of satisfied customers who have discovered the power of authentic African herbal traditions
               </p>
               <Link
                 href="/catalog"
-                className="inline-flex items-center justify-center px-10 py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                className="inline-flex items-center justify-center px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 text-sm sm:text-base"
               >
                 Explore Our Collection
               </Link>
@@ -452,15 +477,24 @@ export default function Home() {
               Discover why thousands of people worldwide trust Earthlixir for their daily wellness routine
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {testimonials.map((testimonial) => (
-              <AnimatedTestimonial
-                key={testimonial.id}
-                testimonial={testimonial}
-                animationOptions={animationOptions}
-              />
-            ))}
-          </div>
+          {loadingReviews ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600 mb-4"></div>
+              <p className="text-gray-700 text-lg">Loading testimonials...</p>
+            </div>
+          ) : reviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+              {reviews.map((review) => (
+                <AnimatedTestimonial
+                  key={review.id}
+                  review={review}
+                  animationOptions={animationOptions}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-700 text-lg mb-16">No reviews yet. Be the first to review our products!</p>
+          )}
           <div
             ref={trustIndicatorsRef}
             className={`text-center transition-all duration-700 ${trustIndicatorsInView ? 'opacity-100' : 'opacity-0'}`}
@@ -482,21 +516,31 @@ export default function Home() {
               </div>
               <div className="mt-10">
                 <p className="text-gray-700 text-lg mb-6">
-                  Join our community of wellness enthusiasts and experience the difference
+                  Connect with us on social media for wellness tips, exclusive offers, and daily inspiration
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    href="/catalog"
-                    className="inline-flex items-center justify-center px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-300 shadow-lg"
+                  <a
+                    href="https://www.instagram.com/earth_lixir?igsh=anFveng4YWI5OWNn&utm_source=qr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-300 shadow-lg gap-2"
                   >
-                    Start Your Journey
-                  </Link>
-                  <Link
-                    href="/reviews"
-                    className="inline-flex items-center justify-center px-8 py-3 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-semibold rounded-lg transition-colors duration-300"
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    Follow on Instagram
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@earth_lixir?_t=ZN-90HI3IVKRBm&_r=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center px-8 py-3 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-semibold rounded-lg transition-colors duration-300 gap-2"
                   >
-                    Read All Reviews
-                  </Link>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                    Follow on TikTok
+                  </a>
                 </div>
               </div>
             </div>

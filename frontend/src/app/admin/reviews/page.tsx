@@ -1,137 +1,228 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import axios from 'axios';
 import Link from 'next/link';
+import AdminHeader from '@/components/Admin/AdminHeader';
+import Sidebar from '@/components/Admin/Sidebar';
 
 interface Review {
-  id: number;
+  id: string;
   product: {
-    id: number; 
-    name: string; 
+    id: string;
+    name: string;
   };
-  user: { 
-    email: string; 
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
   };
+  guestName?: string;
+  guestEmail?: string;
   rating: number;
-  comment?: string;
-  created_at: string;
+  comment: string;
+  country: string;
+  createdAt: string;
 }
 
 const AdminReviewsPage: React.FC = () => {
-  const { user, isAuthenticated, token } = useAuth();
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const fetchReviews = useCallback(async () => {
+  const decodeToken = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
+
+    const decodedToken = decodeToken(token);
+    if (!decodedToken || !decodedToken.isAdmin) {
+      router.push('/admin/login');
+      return;
+    }
+
+    setIsAdmin(true);
+    fetchReviews();
+  }, [router]);
+
+  const fetchReviews = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/reviews`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
-      }
-      const data: Review[] = await response.json();
-      setReviews(data);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching reviews.';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
+      setReviews(response.data);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to fetch reviews';
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  };
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return;
-    }
-    if (!user?.is_admin) {
-      router.push('/');
-      alert('Access Denied: You are not authorized to view this page.');
-      return;
-    }
-    fetchReviews();
-  }, [isAuthenticated, user, router, fetchReviews]);
-
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this review?')) {
       return;
     }
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/reviews/${id}`, {
-        method: 'DELETE',
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('accessToken');
+      await axios.delete(`${backendUrl}/api/reviews/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) {
-        throw new Error('Failed to delete review');
-      }
       alert('Review deleted successfully!');
       fetchReviews();
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred while deleting the review.';
-      setError(errorMessage);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to delete review';
+      alert(errorMessage);
     }
   };
 
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8 text-center">Loading Reviews...</div>;
-  }
-
-  if (error) {
-    return <div className="container mx-auto px-4 py-8 text-center text-red-600">Error: {error}</div>;
+  if (!isAdmin) {
+    return null;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Manage Reviews</h1>
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        {reviews.length === 0 ? (
-          <p className="text-center text-gray-600">No reviews found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">Product</th>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">User</th>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">Rating</th>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">Comment</th>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">Date</th>
-                  <th className="py-2 px-4 border-b text-left text-gray-600 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviews.map((review) => (
-                  <tr key={review.id}>
-                    <td className="py-2 px-4 border-b text-gray-800">
-                      <Link href={`/product/${review.product.id}`} className="text-blue-600 hover:underline">
-                        {review.product.name}
-                      </Link>
-                    </td>
-                    <td className="py-2 px-4 border-b text-gray-800">{review.user?.email || 'N/A'}</td>
-                    <td className="py-2 px-4 border-b text-gray-800">{'⭐'.repeat(review.rating)}</td>
-                    <td className="py-2 px-4 border-b text-gray-800">{review.comment || 'N/A'}</td>
-                    <td className="py-2 px-4 border-b text-gray-800">{new Date(review.created_at).toLocaleDateString()}</td>
-                    <td className="py-2 px-4 border-b">
-                      <button onClick={() => handleDelete(review.id)} className="text-red-600 hover:underline">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <AdminHeader />
+        <main className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-4xl font-bold text-gray-800 mb-8">Manage Reviews</h1>
+
+            {loading ? (
+              <div className="bg-white rounded-lg shadow-md p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600 mb-4"></div>
+                <p className="text-gray-700 text-lg">Loading reviews...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                <p className="text-red-600 text-lg">{error}</p>
+                <button
+                  onClick={fetchReviews}
+                  className="mt-4 bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                {reviews.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <p className="text-gray-600 text-lg">No reviews found.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Product
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Reviewer
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Country
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rating
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Comment
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {reviews.map((review) => (
+                          <tr key={review.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4">
+                              <Link
+                                href={`/products/${review.product.id}`}
+                                className="text-blue-600 hover:text-blue-900 font-medium"
+                              >
+                                {review.product.name}
+                              </Link>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {review.user
+                                  ? `${review.user.firstName} ${review.user.lastName}`
+                                  : review.guestName || 'Anonymous'}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {review.user ? review.user.email : review.guestEmail || 'N/A'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {review.country}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <span className="text-yellow-500 text-lg">{'★'.repeat(review.rating)}</span>
+                                <span className="text-gray-300 text-lg">{'★'.repeat(5 - review.rating)}</span>
+                                <span className="ml-2 text-sm text-gray-600">({review.rating}/5)</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900 max-w-md">
+                              <div className="line-clamp-2">{review.comment}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => handleDelete(review.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        </main>
       </div>
     </div>
   );
