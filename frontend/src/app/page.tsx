@@ -208,11 +208,23 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
-        const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
+        // Use production backend URL for mobile compatibility
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
+        console.log('Fetching products from:', backendUrl);
+        
+        const response = await axios.get<Product[]>(`${backendUrl}/api/products`, {
+          timeout: 10000, // 10 second timeout
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        console.log('Products fetched successfully:', response.data.length);
         setProducts(response.data);
       } catch (error) {
         console.error('Error fetching products:', error);
+        // Set empty array as fallback
+        setProducts([]);
       } finally {
         setLoadingProducts(false);
       }
@@ -224,11 +236,23 @@ export default function Home() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
-        const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
+        // Use production backend URL for mobile compatibility
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
+        console.log('Fetching reviews from:', backendUrl);
+        
+        const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`, {
+          timeout: 10000, // 10 second timeout
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        console.log('Reviews fetched successfully:', response.data.length);
         setReviews(response.data.slice(0, 6)); // Limit to 6 reviews
       } catch (error) {
         console.error('Error fetching reviews:', error);
+        // Set empty array as fallback
+        setReviews([]);
       } finally {
         setLoadingReviews(false);
       }
