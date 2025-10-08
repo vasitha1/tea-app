@@ -38,25 +38,35 @@ interface CustomRequest extends Request {
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        entities: [
-          Product,
-          // Category, // Removed Category entity
-          User,
-          Order,
-          OrderItem,
-          Review,
-          Wishlist,
-          Faq,
-        ],
-        synchronize: true, // Set back to true to force schema synchronization
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Check for DATABASE_URL first (production), then fall back to individual vars (local)
+        const databaseUrl = configService.get<string>('DATABASE_URL') || configService.get<string>('POSTGRES_URL');
+        
+        if (databaseUrl) {
+          // Production: Use connection string
+          return {
+            type: 'postgres' as const,
+            url: databaseUrl,
+            entities: [Product, User, Order, OrderItem, Review, Wishlist, Faq],
+            synchronize: true,
+            ssl: {
+              rejectUnauthorized: false, // Required for most cloud databases
+            },
+          };
+        } else {
+          // Local development: Use individual variables
+          return {
+            type: 'postgres' as const,
+            host: configService.get<string>('DB_HOST', 'localhost'),
+            port: configService.get<number>('DB_PORT', 5434),
+            username: configService.get<string>('DB_USERNAME', 'postgres'),
+            password: configService.get<string>('DB_PASSWORD', 'password'),
+            database: configService.get<string>('DB_DATABASE', 'tea_shop'),
+            entities: [Product, User, Order, OrderItem, Review, Wishlist, Faq],
+            synchronize: true,
+          };
+        }
+      },
       inject: [ConfigService],
     }),
     AuthModule,
