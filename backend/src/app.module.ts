@@ -21,7 +21,7 @@ import { ShippingModule } from '@modules/shipping/shipping.module';
 import { EmailModule } from '@modules/email/email.module';
 import { ContactModule } from '@modules/contact/contact.module';
 import { FaqsModule } from '@modules/faqs/faqs.module';
-import * as rawbody from 'raw-body';
+import rawbody from 'raw-body';
 import { Request, Response } from 'express';
 // import { AdminModule } from './modules/admin.module'; // Added based on list_dir
 // import { InventoryModule } from './modules/inventory.module'; // Added based on list_dir
