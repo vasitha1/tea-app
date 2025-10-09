@@ -60,13 +60,13 @@ let OrdersService = class OrdersService {
     }
     async findAll() {
         return this.orderRepository.find({
-            relations: ['user', 'items', 'items.product'],
+            relations: ['user', 'orderItems', 'orderItems.product'],
         });
     }
     async findOne(id) {
         const order = await this.orderRepository.findOne({
             where: { id },
-            relations: ['user', 'items', 'items.product'],
+            relations: ['user', 'orderItems', 'orderItems.product'],
         });
         if (!order) {
             throw new common_1.NotFoundException(`Order with ID ${id} not found`);

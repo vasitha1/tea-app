@@ -60,7 +60,7 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: (configService) => {
-                    const databaseUrl = configService.get('DATABASE_URL') || configService.get('POSTGRES_URL');
+                    const databaseUrl = configService.get('DATABASE_URL') || configService.get('POSTGRES_URL') || configService.get('POSTGRES_DATABASE_URL');
                     if (databaseUrl) {
                         return {
                             type: 'postgres',

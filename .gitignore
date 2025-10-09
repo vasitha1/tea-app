@@ -73,3 +73,4 @@ Thumbs.db
 # Database exports (may contain sensitive data)
 *.sql
 database_export.sql
+
