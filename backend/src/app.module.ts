@@ -40,7 +40,7 @@ interface CustomRequest extends Request {
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         // Check for DATABASE_URL first (production), then fall back to individual vars (local)
-        const databaseUrl = configService.get<string>('DATABASE_URL') || configService.get<string>('POSTGRES_URL');
+        const databaseUrl = configService.get<string>('DATABASE_URL') || configService.get<string>('POSTGRES_URL') || configService.get<string>('POSTGRES_DATABASE_URL');
         
         if (databaseUrl) {
           // Production: Use connection string
