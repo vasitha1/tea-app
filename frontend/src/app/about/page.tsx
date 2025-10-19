@@ -163,8 +163,8 @@ export default function AboutPage() {
                     <div className="text-2xl">📞</div>
                     <div>
                       <div className="font-semibold text-lg">Phone</div>
-                      <a href="tel:+4917614379086" className="text-green-100 hover:text-white transition-colors">
-                        +49 (176) 14379086
+                      <a href="tel:+237677381617" className="text-green-100 hover:text-white transition-colors">
+                        +237677381617
                       </a>
                     </div>
                   </div>

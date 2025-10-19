@@ -79,7 +79,7 @@ export default function Footer() {
               </p>
               <p>
                 <span className="font-medium">Phone:</span><br />
-                +49 (176) 14379086
+                +237677381617
               </p>
               <p>
                 <span className="font-medium">Address:</span><br />
@@ -108,11 +108,8 @@ export default function Footer() {
               © 2024 Earthlixir. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
-                Terms of Service
+              <Link href="/terms-privacy" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
+                Terms & Privacy Policy
               </Link>
               <Link href="/contact" className="text-gray-400 hover:text-green-400 transition-colors duration-300">
                 Contact Us
