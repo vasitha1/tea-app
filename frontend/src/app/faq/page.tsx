@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl, API_ENDPOINTS } from '@/utils/api';
 
 interface FaqItem {
   id: string;
@@ -63,8 +64,7 @@ const FAQPage: React.FC = () => {
     const fetchFaqs = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-        const response = await axios.get<FaqItem[]>(`${backendUrl}/api/faqs`); // Adjust URL as needed
+        const response = await axios.get<FaqItem[]>(getApiUrl(API_ENDPOINTS.FAQS));
         setFaqs(response.data);
       } catch (err) {
         console.error('Error fetching FAQs:', err);

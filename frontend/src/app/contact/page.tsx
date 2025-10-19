@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/utils/api';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaInstagram, FaTiktok } from 'react-icons/fa';
 
 export default function ContactPage() {
@@ -24,8 +25,7 @@ export default function ContactPage() {
     setSubmitStatus(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.post(`${backendUrl}/api/contact/submit`, formData);
+      const response = await axios.post(getApiUrl('/api/contact/submit'), formData);
       setSubmitStatus({ success: true, message: response.data.message });
       setFormData({ reason: '', phoneNumber: '', email: '', message: '' }); // Clear form
     } catch (error) {

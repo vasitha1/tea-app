@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 // import { useRouter } from 'next/navigation'; // Removed useRouter as it's no longer used for redirection after auth removal
+import { getApiUrl } from '@/utils/api';
 
 interface ReviewFormProps {
   productId: string;
@@ -44,8 +45,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
     }
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      await axios.post(`${backendUrl}/api/reviews`, {
+      await axios.post(getApiUrl('/api/reviews'), {
         productId,
         rating,
         comment,

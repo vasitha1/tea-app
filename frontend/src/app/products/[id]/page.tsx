@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Product } from '@/app/page';
 import ReviewList from '@/components/ReviewList'; // Import ReviewList
 import ReviewForm from '@/components/ReviewForm'; // Import ReviewForm
+import { getApiUrl } from '@/utils/api';
 
 // Define the Review interface to match the backend Review entity
 interface Review {
@@ -34,7 +35,6 @@ const ProductDetailPage = () => {
   const [showReviewForm, setShowReviewForm] = useState<boolean>(false); // New state for form visibility
 
   const [activeTab, setActiveTab] = useState('description'); // New state for active tab
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app'; // Define backendUrl here
 
   const fetchProductAndReviews = async () => {
     try {
@@ -42,15 +42,15 @@ const ProductDetailPage = () => {
       // const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'; // REMOVED: Moved to component scope
 
       // Fetch product details
-      const productResponse = await axios.get<Product>(`${backendUrl}/api/products/${id}`);
+      const productResponse = await axios.get<Product>(getApiUrl(`/api/products/${id}`));
       setProduct(productResponse.data);
 
       // Fetch reviews for the product
-      const reviewsResponse = await axios.get<Review[]>(`${backendUrl}/api/reviews/product/${id}`);
+      const reviewsResponse = await axios.get<Review[]>(getApiUrl(`/api/reviews/product/${id}`));
       setReviews(reviewsResponse.data);
 
       // Fetch average rating for the product
-      const averageRatingResponse = await axios.get<{ averageRating: number }>(`${backendUrl}/api/reviews/product/${id}/average-rating`);
+      const averageRatingResponse = await axios.get<{ averageRating: number }>(getApiUrl(`/api/reviews/product/${id}/average-rating`));
       setAverageRating(averageRatingResponse.data.averageRating);
     } catch (err) {
       console.error('Error fetching product or reviews:', err);

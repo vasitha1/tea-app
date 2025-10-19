@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
+import { getApiUrl, API_ENDPOINTS } from '@/utils/api';
 
 interface Review {
   id: string;
@@ -79,8 +80,7 @@ export default function CameroonianReviewsPage() {
     const fetchAllReviews = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-        const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
+        const response = await axios.get<Review[]>(getApiUrl(API_ENDPOINTS.REVIEWS));
         setReviews(response.data);
       } catch (err) {
         console.error('Error fetching reviews:', err);
