@@ -35,7 +35,8 @@ const AdminDashboardPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get<Review[]>('http://localhost:3000/api/reviews', {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
+      const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,7 +70,8 @@ const AdminDashboardPage: React.FC = () => {
     try {
       // In a real application, you might have an 'approved' field in the Review entity
       // For now, this is a placeholder. You'd send a PATCH request to update the review status.
-      await axios.patch(`http://localhost:3000/api/reviews/${reviewId}`, { /* approved: true */ }, {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
+      await axios.patch(`${backendUrl}/api/reviews/${reviewId}`, { /* approved: true */ }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -89,7 +91,8 @@ const AdminDashboardPage: React.FC = () => {
       return;
     }
     try {
-      await axios.delete(`http://localhost:3000/api/reviews/${reviewId}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
+      await axios.delete(`${backendUrl}/api/reviews/${reviewId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

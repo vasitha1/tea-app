@@ -76,7 +76,7 @@ const AdminOrdersPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
       const response = await axios.get<Order[]>(`${backendUrl}/api/orders`, {
         headers: {
@@ -95,7 +95,7 @@ const AdminOrdersPage: React.FC = () => {
 
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
       await axios.patch(
         `${backendUrl}/api/orders/${orderId}`,
@@ -120,7 +120,7 @@ const AdminOrdersPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
       await axios.delete(`${backendUrl}/api/orders/${orderId}`, {
         headers: {

@@ -37,7 +37,7 @@ const AdminLoginPage: React.FC = () => {
     setError(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const response = await axios.post(`${backendUrl}/api/auth/login`, {
         email,
         password,

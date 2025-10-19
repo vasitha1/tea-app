@@ -63,7 +63,7 @@ const FAQPage: React.FC = () => {
     const fetchFaqs = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
         const response = await axios.get<FaqItem[]>(`${backendUrl}/api/faqs`); // Adjust URL as needed
         setFaqs(response.data);
       } catch (err) {

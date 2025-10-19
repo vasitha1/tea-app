@@ -53,7 +53,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
 
   const fetchProduct = async (id: string) => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const response = await axios.get(`${backendUrl}/api/products/${id}`);
       const product = response.data;
       
@@ -104,7 +104,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
     setError(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
 
       // Prepare the data

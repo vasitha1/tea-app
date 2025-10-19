@@ -35,14 +35,10 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60, // Cache images for 60 seconds
   },
-  // Optimize bundle size
-  swcMinify: true,
   // Enable compression
   compress: true,
   // Production optimizations
   productionBrowserSourceMaps: false,
-  // Optimize fonts
-  optimizeFonts: true,
   // Performance improvements
   poweredByHeader: false, // Remove X-Powered-By header for security
   // Generate ETags for caching
