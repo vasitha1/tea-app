@@ -208,8 +208,16 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
-        console.log('Fetching products from:', backendUrl);
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
+        console.log('Environment check:', {
+          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+          backendUrl: backendUrl,
+          isClient: typeof window !== 'undefined'
+        });
+        
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
         
         const response = await fetch(`${backendUrl}/api/products`, {
           method: 'GET',
@@ -217,7 +225,10 @@ export default function Home() {
             'Content-Type': 'application/json',
           },
           cache: 'no-store', // Important for iOS
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -228,6 +239,9 @@ export default function Home() {
         setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('Request timed out after 10 seconds');
+        }
         // Set empty array as fallback
         setProducts([]);
       } finally {
@@ -242,8 +256,16 @@ export default function Home() {
     const fetchReviews = async () => {
       try {
         // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
-        console.log('Fetching reviews from:', backendUrl);
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
+        console.log('Reviews Environment check:', {
+          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+          backendUrl: backendUrl,
+          isClient: typeof window !== 'undefined'
+        });
+        
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
         
         const response = await fetch(`${backendUrl}/api/reviews`, {
           method: 'GET',
@@ -251,7 +273,10 @@ export default function Home() {
             'Content-Type': 'application/json',
           },
           cache: 'no-store', // Important for iOS
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -262,6 +287,9 @@ export default function Home() {
         setReviews(data.slice(0, 6)); // Limit to 6 reviews
       } catch (error) {
         console.error('Error fetching reviews:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('Reviews request timed out after 10 seconds');
+        }
         // Set empty array as fallback
         setReviews([]);
       } finally {
