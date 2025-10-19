@@ -33,7 +33,7 @@ const AdminUsersPage: React.FC = () => {
           .join('')
       );
       return JSON.parse(jsonPayload);
-    } catch (error) {
+    } catch {
       return null;
     }
   };

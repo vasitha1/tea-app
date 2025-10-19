@@ -34,7 +34,7 @@ const AdminCategoriesPage: React.FC = () => {
           .join('')
       );
       return JSON.parse(jsonPayload);
-    } catch (error) {
+    } catch {
       return null;
     }
   };
