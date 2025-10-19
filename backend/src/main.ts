@@ -32,7 +32,9 @@ async function bootstrap() {
     maxAge: 86400, // 24 hours
   });
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['/'],
+  });
 
   // Serve static files from the 'public' directory
   app.use('/images', express.static(join(__dirname, '..', 'public', 'images')));

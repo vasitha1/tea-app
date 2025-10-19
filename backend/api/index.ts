@@ -18,7 +18,9 @@ async function createNestApp() {
   const app = await NestFactory.create(AppModule, adapter);
 
   app.enableCors();
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['/'],
+  });
 
   app.use('/images', express.static(join(__dirname, '..', 'public', 'images')));
 
