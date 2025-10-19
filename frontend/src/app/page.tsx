@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
+import { getApiUrl, API_ENDPOINTS } from '@/utils/api';
 
 // Define Product interface to match backend
 export interface Product {
@@ -207,19 +208,18 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-        console.log('Environment check:', {
-          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-          backendUrl: backendUrl,
-          isClient: typeof window !== 'undefined'
-        });
-        
-        // Add timeout to prevent hanging
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-        
-        const response = await fetch(`${backendUrl}/api/products`, {
+          // Use production backend URL for mobile compatibility
+          console.log('Environment check:', {
+            NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+            apiUrl: getApiUrl(API_ENDPOINTS.PRODUCTS),
+            isClient: typeof window !== 'undefined'
+          });
+          
+          // Add timeout to prevent hanging
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          
+          const response = await fetch(getApiUrl(API_ENDPOINTS.PRODUCTS), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -255,19 +255,18 @@ export default function Home() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-        console.log('Reviews Environment check:', {
-          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-          backendUrl: backendUrl,
-          isClient: typeof window !== 'undefined'
-        });
-        
-        // Add timeout to prevent hanging
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-        
-        const response = await fetch(`${backendUrl}/api/reviews`, {
+          // Use production backend URL for mobile compatibility
+          console.log('Reviews Environment check:', {
+            NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+            apiUrl: getApiUrl(API_ENDPOINTS.REVIEWS),
+            isClient: typeof window !== 'undefined'
+          });
+          
+          // Add timeout to prevent hanging
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          
+          const response = await fetch(getApiUrl(API_ENDPOINTS.REVIEWS), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

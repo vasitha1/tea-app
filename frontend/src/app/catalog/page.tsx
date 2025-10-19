@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Product } from '@/app/page';
 import ProductShowcaseCard from '@/components/ProductShowcaseCard';
+import { getApiUrl, API_ENDPOINTS } from '@/utils/api';
 
 export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -15,8 +16,7 @@ export default function CatalogPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-        const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
+        const response = await axios.get<Product[]>(getApiUrl(API_ENDPOINTS.PRODUCTS));
         setProducts(response.data);
       } catch (err) {
         console.error('Error fetching products:', err);
