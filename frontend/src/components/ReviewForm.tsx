@@ -44,7 +44,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
     }
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       await axios.post(`${backendUrl}/api/reviews`, {
         productId,
         rating,

@@ -60,7 +60,7 @@ const AdminCategoriesPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       const response = await axios.get<Category[]>(`${backendUrl}/api/categories`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -95,7 +95,7 @@ const AdminCategoriesPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
 
       if (editingCategory) {
@@ -124,7 +124,7 @@ const AdminCategoriesPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       await axios.delete(`${backendUrl}/api/categories/${id}`, {
         headers: { Authorization: `Bearer ${token}` },

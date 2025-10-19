@@ -15,7 +15,7 @@ export default function CatalogPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
         setProducts(response.data);
       } catch (err) {

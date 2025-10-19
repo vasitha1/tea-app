@@ -34,7 +34,7 @@ const ProductDetailPage = () => {
   const [showReviewForm, setShowReviewForm] = useState<boolean>(false); // New state for form visibility
 
   const [activeTab, setActiveTab] = useState('description'); // New state for active tab
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'; // Define backendUrl here
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; // Define backendUrl here
 
   const fetchProductAndReviews = async () => {
     try {

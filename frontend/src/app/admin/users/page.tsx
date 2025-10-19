@@ -59,7 +59,7 @@ const AdminUsersPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       const response = await axios.get<User[]>(`${backendUrl}/api/users`, {
         headers: {
@@ -82,7 +82,7 @@ const AdminUsersPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       await axios.patch(
         `${backendUrl}/api/users/${userId}`,
@@ -107,7 +107,7 @@ const AdminUsersPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       await axios.delete(`${backendUrl}/api/users/${userId}`, {
         headers: {

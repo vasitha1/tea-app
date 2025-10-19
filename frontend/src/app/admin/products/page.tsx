@@ -66,7 +66,7 @@ const AdminProductsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
       setProducts(response.data);
     } catch (err) {
@@ -83,7 +83,7 @@ const AdminProductsPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       await axios.delete(`${backendUrl}/api/products/${id}`, {
         headers: {

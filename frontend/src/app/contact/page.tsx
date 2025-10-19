@@ -24,7 +24,7 @@ export default function ContactPage() {
     setSubmitStatus(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await axios.post(`${backendUrl}/api/contact/submit`, formData);
       setSubmitStatus({ success: true, message: response.data.message });
       setFormData({ reason: '', phoneNumber: '', email: '', message: '' }); // Clear form

@@ -61,7 +61,7 @@ const AdminFAQsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await axios.get<FAQ[]>(`${backendUrl}/api/faqs`);
       setFaqs(response.data.sort((a, b) => a.order - b.order));
     } catch (err) {
@@ -93,7 +93,7 @@ const AdminFAQsPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
 
       if (editingFaq) {
@@ -122,7 +122,7 @@ const AdminFAQsPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('accessToken');
       await axios.delete(`${backendUrl}/api/faqs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },

@@ -208,7 +208,7 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
         console.log('Fetching products from:', backendUrl);
         
         const response = await fetch(`${backendUrl}/api/products`, {
@@ -242,7 +242,7 @@ export default function Home() {
     const fetchReviews = async () => {
       try {
         // Use production backend URL for mobile compatibility
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend-e3vh2uezg-sulemfelsi-9351s-projects.vercel.app';
         console.log('Fetching reviews from:', backendUrl);
         
         const response = await fetch(`${backendUrl}/api/reviews`, {
