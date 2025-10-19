@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import AdminHeader from '../../../components/Admin/AdminHeader';
 import Sidebar from '../../../components/Admin/Sidebar';
+import { getApiUrl } from '@/utils/api';
 
 interface Category {
   id: string;
@@ -60,9 +61,8 @@ const AdminCategoriesPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get<Category[]>(`${backendUrl}/api/categories`, {
+      const response = await axios.get<Category[]>(getApiUrl('/api/categories'), {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(response.data);
@@ -99,12 +99,12 @@ const AdminCategoriesPage: React.FC = () => {
       const token = localStorage.getItem('accessToken');
 
       if (editingCategory) {
-        await axios.patch(`${backendUrl}/api/categories/${editingCategory.id}`, formData, {
+        await axios.patch(getApiUrl(`/api/categories/${editingCategory.id}`), formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('Category updated successfully!');
       } else {
-        await axios.post(`${backendUrl}/api/categories`, formData, {
+        await axios.post(getApiUrl('/api/categories'), formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('Category created successfully!');
@@ -124,9 +124,8 @@ const AdminCategoriesPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`${backendUrl}/api/categories/${id}`, {
+      await axios.delete(getApiUrl(`/api/categories/${id}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Category deleted successfully!');

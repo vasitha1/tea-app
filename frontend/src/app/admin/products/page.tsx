@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AdminHeader from '../../../components/Admin/AdminHeader';
 import Sidebar from '../../../components/Admin/Sidebar';
+import { getApiUrl } from '@/utils/api';
 
 interface Product {
   id: string;
@@ -66,8 +67,7 @@ const AdminProductsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.get<Product[]>(`${backendUrl}/api/products`);
+      const response = await axios.get<Product[]>(getApiUrl('/api/products'));
       setProducts(response.data);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -83,9 +83,8 @@ const AdminProductsPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`${backendUrl}/api/products/${id}`, {
+      await axios.delete(getApiUrl(`/api/products/${id}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

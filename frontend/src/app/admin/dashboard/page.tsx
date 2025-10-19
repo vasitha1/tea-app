@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { getApiUrl } from '@/utils/api';
 
 interface Review {
   id: string;
@@ -35,8 +36,7 @@ const AdminDashboardPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`, {
+      const response = await axios.get<Review[]>(getApiUrl('/api/reviews'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -70,8 +70,7 @@ const AdminDashboardPage: React.FC = () => {
     try {
       // In a real application, you might have an 'approved' field in the Review entity
       // For now, this is a placeholder. You'd send a PATCH request to update the review status.
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      await axios.patch(`${backendUrl}/api/reviews/${reviewId}`, { /* approved: true */ }, {
+      await axios.patch(getApiUrl(`/api/reviews/${reviewId}`), { /* approved: true */ }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -91,8 +90,7 @@ const AdminDashboardPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      await axios.delete(`${backendUrl}/api/reviews/${reviewId}`, {
+      await axios.delete(getApiUrl(`/api/reviews/${reviewId}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

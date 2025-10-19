@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getApiUrl } from '@/utils/api';
 
 interface ProductFormData {
   name: string;
@@ -53,8 +54,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
 
   const fetchProduct = async (id: string) => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.get(`${backendUrl}/api/products/${id}`);
+      const response = await axios.get(getApiUrl(`/api/products/${id}`));
       const product = response.data;
       
       setFormData({
@@ -130,7 +130,7 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
         formDataImage.append('file', imageFile);
 
         const uploadResponse = await axios.post(
-          `${backendUrl}/api/products/upload-image`,
+          getApiUrl('/api/products/upload-image'),
           formDataImage,
           {
             headers: {
@@ -147,14 +147,14 @@ const AdminProductForm: React.FC<{ productId?: string }> = ({ productId }) => {
 
       // Submit the product
       if (productId) {
-        await axios.patch(`${backendUrl}/api/products/${productId}`, submitData, {
+        await axios.patch(getApiUrl(`/api/products/${productId}`), submitData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         alert('Product updated successfully!');
       } else {
-        await axios.post(`${backendUrl}/api/products`, submitData, {
+        await axios.post(getApiUrl('/api/products'), submitData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

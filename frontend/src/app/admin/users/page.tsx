@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import AdminHeader from '../../../components/Admin/AdminHeader';
 import Sidebar from '../../../components/Admin/Sidebar';
+import { getApiUrl } from '@/utils/api';
 
 interface User {
   id: string;
@@ -59,9 +60,8 @@ const AdminUsersPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get<User[]>(`${backendUrl}/api/users`, {
+      const response = await axios.get<User[]>(getApiUrl('/api/users'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,10 +82,9 @@ const AdminUsersPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
       await axios.patch(
-        `${backendUrl}/api/users/${userId}`,
+        getApiUrl(`/api/users/${userId}`),
         { isAdmin: !currentStatus },
         {
           headers: {
@@ -107,9 +106,8 @@ const AdminUsersPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`${backendUrl}/api/users/${userId}`, {
+      await axios.delete(getApiUrl(`/api/users/${userId}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

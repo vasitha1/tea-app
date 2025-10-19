@@ -6,6 +6,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import AdminHeader from '../../../components/Admin/AdminHeader';
 import Sidebar from '../../../components/Admin/Sidebar';
+import { getApiUrl } from '@/utils/api';
 
 interface Review {
   id: string;
@@ -71,8 +72,7 @@ const AdminReviewsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.get<Review[]>(`${backendUrl}/api/reviews`);
+      const response = await axios.get<Review[]>(getApiUrl('/api/reviews'));
       setReviews(response.data);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -88,9 +88,8 @@ const AdminReviewsPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`${backendUrl}/api/reviews/${id}`, {
+      await axios.delete(getApiUrl(`/api/reviews/${id}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },

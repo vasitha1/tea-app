@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import AdminHeader from '../../../components/Admin/AdminHeader';
 import Sidebar from '../../../components/Admin/Sidebar';
+import { getApiUrl } from '@/utils/api';
 
 interface FAQ {
   id: string;
@@ -61,8 +62,7 @@ const AdminFAQsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.get<FAQ[]>(`${backendUrl}/api/faqs`);
+      const response = await axios.get<FAQ[]>(getApiUrl('/api/faqs'));
       setFaqs(response.data.sort((a, b) => a.order - b.order));
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -97,12 +97,12 @@ const AdminFAQsPage: React.FC = () => {
       const token = localStorage.getItem('accessToken');
 
       if (editingFaq) {
-        await axios.patch(`${backendUrl}/api/faqs/${editingFaq.id}`, formData, {
+        await axios.patch(getApiUrl(`/api/faqs/${editingFaq.id}`), formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('FAQ updated successfully!');
       } else {
-        await axios.post(`${backendUrl}/api/faqs`, formData, {
+        await axios.post(getApiUrl('/api/faqs'), formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('FAQ created successfully!');
@@ -122,9 +122,8 @@ const AdminFAQsPage: React.FC = () => {
       return;
     }
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`${backendUrl}/api/faqs/${id}`, {
+      await axios.delete(getApiUrl(`/api/faqs/${id}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('FAQ deleted successfully!');

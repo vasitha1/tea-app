@@ -5,7 +5,18 @@
 export function getApiUrl(endpoint: string): string {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
   const cleanBackendUrl = backendUrl.replace(/\/$/, ''); // Remove trailing slash
-  return `${cleanBackendUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const finalUrl = `${cleanBackendUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  
+  // Debug logging
+  console.log('getApiUrl debug:', {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    backendUrl,
+    cleanBackendUrl,
+    endpoint,
+    finalUrl
+  });
+  
+  return finalUrl;
 }
 
 /**

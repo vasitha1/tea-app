@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getApiUrl } from '@/utils/api';
 
 // Helper function to decode JWT token
 const decodeToken = (token: string) => {
@@ -37,8 +38,7 @@ const AdminLoginPage: React.FC = () => {
     setError(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://earthlixir-backend.vercel.app';
-      const response = await axios.post(`${backendUrl}/api/auth/login`, {
+      const response = await axios.post(getApiUrl('/api/auth/login'), {
         email,
         password,
       });
