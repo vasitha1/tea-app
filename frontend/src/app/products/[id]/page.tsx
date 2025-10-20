@@ -88,6 +88,15 @@ const ProductDetailPage = () => {
     return <div className="flex justify-center items-center min-h-screen"><p className="text-xl text-gray-700">Product not found.</p></div>;
   }
 
+  const formatPriceFcfa = (value?: number | null) => {
+    if (value === undefined || value === null) return null;
+    try {
+      return new Intl.NumberFormat('fr-CM', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(value);
+    } catch {
+      return `${Math.round(Number(value))} FCFA`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +117,11 @@ const ProductDetailPage = () => {
           <div className="space-y-6">
             <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900">{product.name}</h1>
             {product.flavor && <p className="text-gray-500 text-xl">Flavor: {product.flavor}</p>}
-            {product.price !== undefined && product.price !== null && <p className="text-green-600 text-3xl font-bold">${Number(product.price).toFixed(2)}</p>}
+            {product.price !== undefined && product.price !== null && (
+              <p className="text-green-600 text-3xl font-bold">
+                {formatPriceFcfa(product.price)}
+              </p>
+            )}
 
             {product.shortDescription && <p className="text-gray-700 text-lg leading-relaxed">{product.shortDescription}</p>}
 

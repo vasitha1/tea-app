@@ -75,7 +75,7 @@ export default function CatalogPage() {
         {/* Stats Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-2xl p-6 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
-            <div className="text-4xl font-bold text-green-600 mb-2">{products.length}</div>
+                            <div className="text-4xl font-bold text-green-600 mb-2">{products.length}</div>
             <div className="text-gray-600 font-medium">Premium Teas</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">

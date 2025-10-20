@@ -197,7 +197,7 @@ const AdminProductsPage: React.FC = () => {
                               {product.flavor || 'N/A'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {product.price !== undefined ? `$${Number(product.price).toFixed(2)}` : 'N/A'}
+                              {product.price !== undefined ? new Intl.NumberFormat('fr-CM', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(Number(product.price)) : 'N/A'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               {product.stock !== undefined ? product.stock : 'N/A'}
