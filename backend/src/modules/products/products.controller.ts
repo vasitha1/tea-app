@@ -6,8 +6,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { memoryStorage } from 'multer';
 import type { Request } from 'express';
 
 @ApiTags('products')
@@ -69,16 +68,7 @@ export class ProductsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          // Save into dist/public/images at runtime
-          cb(null, join(__dirname, '../../public/images'));
-        },
-        filename: (_req, file, cb) => {
-          const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`;
-          cb(null, uniqueName);
-        },
-      }),
+      storage: memoryStorage(),
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
@@ -94,10 +84,11 @@ export class ProductsController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
-    const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol || 'https';
-    const host = (req.headers['x-forwarded-host'] as string) || req.get('host');
-    const absoluteUrl = host ? `${proto}://${host}/images/${file.filename}` : `/images/${file.filename}`;
-    return { url: absoluteUrl, imageUrl: absoluteUrl };
+    // On serverless (Vercel), persistable disk is not available. Return a Data URL instead.
+    const mime = file.mimetype || 'image/jpeg';
+    const base64 = file.buffer.toString('base64');
+    const dataUrl = `data:${mime};base64,${base64}`;
+    return { url: dataUrl, imageUrl: dataUrl };
   }
 
   @Patch(':id')
