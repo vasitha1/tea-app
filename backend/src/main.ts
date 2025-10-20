@@ -9,6 +9,10 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Increase body size limits to handle base64 image data
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
   // Configure CORS properly for production
   app.enableCors({
     origin: [

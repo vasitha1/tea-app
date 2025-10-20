@@ -17,6 +17,10 @@ async function createNestApp() {
   const adapter = new ExpressAdapter(expressApp);
   const app = await NestFactory.create(AppModule, adapter);
 
+  // Increase body size limits to handle base64 image data
+  expressApp.use(express.json({ limit: '10mb' }));
+  expressApp.use(express.urlencoded({ limit: '10mb', extended: true }));
+
   app.enableCors({
     origin: [
       'http://localhost:3001',
